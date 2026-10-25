@@ -1,4 +1,4 @@
-# FraudStream 🛡️
+# FraudStream 
 
 **Real-time card-fraud detection that notices when fraudsters change tactics and retrains itself.**
 
