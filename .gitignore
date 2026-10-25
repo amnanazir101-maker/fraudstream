@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments and secrets
+.venv/
+venv/
+.env
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+
+# Generated data, models and MLflow runs (recreate with `fraudstream simulate` and `train`)
+data/
+mlruns/
+mlartifacts/
+mlflow.db

@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraudstream"
+version = "0.1.0"
+description = "Real-time card-fraud detection with drift monitoring and automatic retraining."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Amna Nazir" }]
+keywords = ["mlops", "fraud-detection", "streaming", "lightgbm", "mlflow", "kafka", "drift"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "pyarrow>=15",
+    "scikit-learn>=1.4",
+    "lightgbm>=4.7",
+    "mlflow>=3.0,<4",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "prometheus-client>=0.20",
+    "httpx>=0.27",
+    "rich>=13",
+]
+
+[project.optional-dependencies]
+dashboard = ["streamlit>=1.40", "altair>=5"]
+kafka = ["confluent-kafka>=2.3"]
+dev = ["pytest>=8", "httpx2", "ruff==0.17.2"]  # ruff pinned so CI formats exactly like local runs
+
+[project.urls]
+Homepage = "https://github.com/amnanazir101-maker/fraudstream"
+Issues = "https://github.com/amnanazir101-maker/fraudstream/issues"
+
+[project.scripts]
+fraudstream = "fraudstream.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["kafka: needs a Kafka broker (set KAFKA_BOOTSTRAP)"]
+filterwarnings = ["ignore::DeprecationWarning:mlflow.*", "ignore::DeprecationWarning:sqlalchemy.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["SIM905"]
