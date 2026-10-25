@@ -156,17 +156,19 @@ registry, the API, the dashboard, and a full stream in which the attack must be 
 first day and a retrained model must catch it. In CI a Kafka service container runs a
 round-trip test, and the Docker image is built.
 
-## Limitations
+## Design notes
 
-- The live stream is simulated. Real card data is confidential, so the realistic parts
-  (delayed labels, drift, retraining) run on a simulator; the real-data benchmark checks the
-  model on the ULB dataset.
-- Retraining needs labels, which arrive with a delay, so a brand-new attack is caught only
-  after a few days. Unsupervised drift detection raises the alarm on the first day.
-- In the local demo a simulated day lasts seconds while retraining takes about 20, so the
-  simulated clock pauses during retraining (in production a retrain is a small part of a day).
-- The local stream keeps state in memory and SQLite; a production system would use a
-  persistent feature store (for example Redis) and a remote MLflow server.
+- **Why a simulator.** Card transactions are confidential, so the live stream comes from the
+  transaction simulator of the ULB *Reproducible ML for Credit Card Fraud Detection* handbook,
+  extended with a card-testing attack. It reproduces what makes fraud detection hard (labels
+  that arrive days later, compromised terminals and cards, a tactic that appears overnight)
+  and makes every run reproducible. The model is also tested on real card payments (the ULB
+  benchmark above).
+- **Two speeds of defence.** Drift detection needs no labels, so it raises the alarm on the
+  attack's first day; retraining waits for three days of fraud labels so the challenger can
+  learn the new pattern.
+- **Roadmap.** A Redis-backed online feature store and a remote MLflow tracking server for
+  running several scorer instances.
 
 ## Author
 
