@@ -8,6 +8,7 @@ Events are plain dicts, so the same processor runs on the local simulator or on 
 
 from __future__ import annotations
 
+import json
 import logging
 import pickle
 import threading
@@ -446,12 +447,20 @@ def summarize(path: Path) -> dict:
 def load_processor(
     config: Config, events_log: EventLog, wait_for_retraining: bool = False
 ) -> StreamProcessor:
-    """A processor resuming from the end of the training history with the champion model."""
+    """A processor that replays the live period from go-live.
+
+    Every stream starts from the model trained by `fraudstream train`, which becomes the
+    champion again, so a rerun replays the same story instead of starting with a model that
+    a previous run already retrained on the attack. Earlier versions stay in the registry.
+    """
     registry = Registry(config)
+    report = json.loads((config.data_dir / "training_report.json").read_text())
+    first = str(report["model_version"])
+    registry.promote(first)
     with open(config.data_dir / "feature_store.pkl", "rb") as file:
         store = pickle.load(file)  # our own file, written by `fraudstream train`
     history = pd.read_parquet(config.data_dir / "features.parquet")
     return StreamProcessor(
-        config, registry.champion(), store, events_log, history, registry,
+        config, registry.load(first), store, events_log, history, registry,
         wait_for_retraining=wait_for_retraining,
     )  # fmt: skip

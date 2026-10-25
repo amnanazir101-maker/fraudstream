@@ -95,6 +95,15 @@ def test_stream_detects_the_attack_and_retrains(trained, streamed):
     assert (live_after != "1").all()  # the retrained model served from then on
 
 
+def test_a_new_stream_starts_again_from_the_go_live_model(trained, streamed, tmp_path):
+    config = trained["config"]
+    assert Registry(config).champion().version != trained["report"]["model_version"]
+
+    processor = load_processor(config, EventLog(tmp_path / "rerun.db"))
+    assert processor.champion.version == trained["report"]["model_version"]
+    assert Registry(config).champion().version == trained["report"]["model_version"]
+
+
 def test_dashboard_renders_the_stream(trained, streamed, monkeypatch):
     testing = pytest.importorskip("streamlit.testing.v1")
     monkeypatch.setenv("FRAUDSTREAM_DATA_DIR", str(trained["config"].data_dir))

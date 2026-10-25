@@ -83,14 +83,19 @@ class Registry:
         self.client.set_registered_model_alias(self.name, CHAMPION, version)
 
     def champion(self) -> ModelBundle:
-        version = self.client.get_model_version_by_alias(self.name, CHAMPION)
-        model = mlflow.lightgbm.load_model(f"models:/{self.name}@{CHAMPION}")
-        meta = mlflow.artifacts.load_dict(f"runs:/{version.run_id}/bundle.json")
+        """The version serving live traffic."""
+        return self.load(self.client.get_model_version_by_alias(self.name, CHAMPION).version)
+
+    def load(self, version: str) -> ModelBundle:
+        """Any registered version, with its threshold and drift reference."""
+        details = self.client.get_model_version(self.name, str(version))
+        model = mlflow.lightgbm.load_model(f"models:/{self.name}/{version}")
+        meta = mlflow.artifacts.load_dict(f"runs:/{details.run_id}/bundle.json")
         return ModelBundle(
             model=model,
             threshold=meta["threshold"],
             reference=meta["reference"],
             metrics=meta["metrics"],
-            version=str(version.version),
+            version=str(details.version),
             trained_until_day=meta["trained_until_day"],
         )

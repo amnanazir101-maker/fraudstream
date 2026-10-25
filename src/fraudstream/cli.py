@@ -132,9 +132,9 @@ def stream_local(config: Config, day_seconds: float) -> None:
     processor = load_processor(config, events_log, wait_for_retraining=True)
     processor.on_day_closed = _print_day
     console.print(
-        f"Streaming days {config.history_days}-{config.history_days + config.live_days - 1}; "
-        f"a card-testing attack starts on day {config.attack_day}. "
-        "Open the dashboard with: streamlit run dashboard.py"
+        f"Streaming days {config.history_days}-{config.history_days + config.live_days - 1} "
+        f"from the go-live model v{processor.champion.version}; a card-testing attack starts "
+        f"on day {config.attack_day}. Open the dashboard with: streamlit run dashboard.py"
     )
     for event in paced(live_events(config), day_seconds):
         processor.handle(event)
